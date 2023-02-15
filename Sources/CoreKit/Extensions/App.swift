@@ -31,15 +31,12 @@ extension System.App {
         case didBecomeActive
         case willResignActive
         case didResignActive
-        
         case willUpdate
         case didUpdate
         case willUnhide
         case didUnhide
         case willHide
         case didHide
-
-        
         case willTerminate
     }
     #endif

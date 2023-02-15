@@ -131,12 +131,12 @@ public final class Core {
     }
     @objc
     private func willUpdate() {
-        Core.log(event: "App Will Update Active")
+        Core.log(event: "App Will Update Active", silent: true)
         bridges.forEach { $0.app(state: .willUpdate) }
     }
     @objc
     private func didUpdate() {
-        Core.log(event: "App Did Update Active")
+        Core.log(event: "App Did Update Active", silent: true)
         bridges.forEach { $0.app(state: .didUpdate) }
     }
     @objc
