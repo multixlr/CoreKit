@@ -8,6 +8,7 @@ extension System {
     public struct App {}
 }
 extension System.App {
+    public static let bundle = Bundle.main.bundleIdentifier ?? ""
     public static let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 }
 extension System.App {

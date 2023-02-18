@@ -1,8 +1,8 @@
 import Foundation
 
 public protocol Bridge: AnyObject {
-    func app(state: System.App.State)
-    func user(state: System.User.State)
+    func app(state: System.App.State) async
+    func user(state: System.User.State) async
 }
 
 public protocol AppBridge: Bridge {
@@ -10,6 +10,9 @@ public protocol AppBridge: Bridge {
     func requestNotifications()
 }
 
+public protocol AudioBridge: Bridge {
+    
+}
 public protocol NetworkBridge: Bridge {
     var host: String { get }
     var user: System.User? { get }

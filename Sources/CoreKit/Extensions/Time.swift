@@ -15,8 +15,11 @@ public struct Time {
     }
 }
 extension Time {
-    public var debug: String {
+    public var log: String {
         return formatted(to: "dd.MM.yyyy HH:mm:ss.SSS")
+    }
+    public var debug: String {
+        return formatted(to: "HH:mm:ss.SSS")
     }
     public func formatted(to format: String, locale: Locale = .en) -> String {
         let formatter = DateFormatter()

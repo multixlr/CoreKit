@@ -13,8 +13,9 @@ extension Core {
         }
         
         public enum Source {
-            case app
+            case system
             case user
+            case audio
             case images
             case player
             case storage
@@ -24,8 +25,9 @@ extension Core {
             
             public var description: String {
                 switch self {
-                case .app     : return "System"
+                case .system  : return "System"
                 case .user    : return "User"
+                case .audio   : return "Audio"
                 case .images  : return "Images"
                 case .player  : return "Player"
                 case .storage : return "Storage"

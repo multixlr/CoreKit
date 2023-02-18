@@ -12,11 +12,12 @@ public final class Core {
     public static let shared = Core()
     
     public weak var app: AppBridge?
+    public weak var audio: AudioBridge?
     public weak var network: NetworkBridge?
     public weak var interface: InterfaceBridge?
     
     public var bridges: [Bridge] {
-        return [app, network, interface].compactMap{$0}
+        return [app, audio, network, interface].compactMap{$0}
     }
     
     public private(set) var events: [Event] = []
@@ -27,7 +28,7 @@ public final class Core {
     private init() {
         let session = UUID()
         self.session = session
-        Core.log(event: "Session \(session.uuidString) — \(Time.now.debug)")
+        Core.log(event: "Session \(session.uuidString) — \(Time.now.log)")
         Core.log(event: "CoreKit initialized")
         setupNotifications()
     }
@@ -58,121 +59,120 @@ public final class Core {
         #endif
     }
     
-    public static func log(event: String, source: Event.Source = .app, silent: Bool = false) {
-        logqueue.async(flags: .barrier) {
-            shared.events.append(Event(event: event, source: source))
-        }
-        #if DEBUG
-        if !silent { print(event) }
-        #endif
-    }
-    
     #if canImport(UIKit)
     @objc
     private func didFinishLaunching() {
         Core.log(event: "App Did Finish Launching")
-        bridges.forEach { $0.app(state: .didFinishLaunching) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didFinishLaunching) } }
     }
     @objc
     private func willEnterForeground() {
         Core.log(event: "App Will Enter Foreground")
-        bridges.forEach { $0.app(state: .willEnterForeground) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willEnterForeground) } }
     }
     @objc
     private func didBecomeActive() {
         Core.log(event: "App Did Become Active")
-        bridges.forEach { $0.app(state: .didBecomeActive) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didBecomeActive) } }
     }
     @objc
     private func willResignActive() {
         Core.log(event: "App Will Resign Active")
-        bridges.forEach { $0.app(state: .willResignActive) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willResignActive) } }
     }
     @objc
     private func didEnterBackground() {
         Core.log(event: "App Did Enter Background")
-        bridges.forEach { $0.app(state: .didEnterBackground) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didEnterBackground) } }
     }
     @objc
     private func willTerminate() {
         Core.log(event: "App Will Terminate")
-        bridges.forEach { $0.app(state: .willTerminate) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willTerminate) } }
     }
     #elseif canImport(AppKit)
     @objc
     private func willFinishLaunching() {
         Core.log(event: "App Will Finish Launching")
-        bridges.forEach { $0.app(state: .willFinishLaunching) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willFinishLaunching) } }
     }
     @objc
     private func didFinishLaunching() {
         Core.log(event: "App Did Finish Launching")
-        bridges.forEach { $0.app(state: .didFinishLaunching) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didFinishLaunching) } }
     }
     @objc
     private func willBecomeActive() {
         Core.log(event: "App Will Become Active")
-        bridges.forEach { $0.app(state: .willBecomeActive) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willBecomeActive) } }
     }
     @objc
     private func didBecomeActive() {
         Core.log(event: "App Did Become Active")
-        bridges.forEach { $0.app(state: .didBecomeActive) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didBecomeActive) } }
     }
     @objc
     private func willResignActive() {
         Core.log(event: "App Will Resign Active")
-        bridges.forEach { $0.app(state: .willResignActive) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willResignActive) } }
     }
     @objc
     private func didResignActive() {
         Core.log(event: "App Did Resign Active")
-        bridges.forEach { $0.app(state: .didResignActive) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didResignActive) } }
     }
     @objc
     private func willUpdate() {
         Core.log(event: "App Will Update Active", silent: true)
-        bridges.forEach { $0.app(state: .willUpdate) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willUpdate) } }
     }
     @objc
     private func didUpdate() {
         Core.log(event: "App Did Update Active", silent: true)
-        bridges.forEach { $0.app(state: .didUpdate) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didUpdate) } }
     }
     @objc
     private func willUnhide() {
         Core.log(event: "App Will Unhide Active")
-        bridges.forEach { $0.app(state: .willUnhide) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willUnhide) } }
     }
     @objc
     private func didUnhide() {
         Core.log(event: "App Did Unhide Active")
-        bridges.forEach { $0.app(state: .didUnhide) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didUnhide) } }
     }
     @objc
     private func willHide() {
         Core.log(event: "App Will Hide Active")
-        bridges.forEach { $0.app(state: .willHide) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willHide) } }
     }
     @objc
     private func didHide() {
         Core.log(event: "App Did Hide Active")
-        bridges.forEach { $0.app(state: .didHide) }
+        Task { await bridges.asyncForEach { await $0.app(state: .didHide) } }
     }
     @objc
     private func willTerminate() {
         Core.log(event: "App Will Terminate")
-        bridges.forEach { $0.app(state: .willTerminate) }
+        Task { await bridges.asyncForEach { await $0.app(state: .willTerminate) } }
     }
     #endif
 }
 
 extension Core {
+    public static func log(event: String, source: Event.Source = .system, silent: Bool = false) {
+        logqueue.async(flags: .barrier) {
+            shared.events.append(Event(event: event, source: source))
+        }
+        #if DEBUG
+        if !silent { print("\(Time.now.debug): \(event)") }
+        #endif
+    }
     public func log() async -> URL? {
         let events = events
         var log = ""
         for event in events {
-            log += "\(event.source.description) — \(event.recorded.debug): ".uppercased() + "\(event.event)"
+            log += "\(event.source.description) — \(event.recorded.log): ".uppercased() + "\(event.event)"
             log += "\n"
         }
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -185,6 +185,6 @@ extension Core {
         }
     }
 }
-public func log(event: String, source: Core.Event.Source = .app, silent: Bool = false) {
+public func log(event: String, source: Core.Event.Source = .system, silent: Bool = false) {
     Core.log(event: event, source: source, silent: silent)
 }
